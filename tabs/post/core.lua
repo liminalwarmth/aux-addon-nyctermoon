@@ -252,7 +252,7 @@ function post_auctions()
                     record_auction(key, stack_size, unit_start_price * stack_size, unit_buyout_price, duration_code, UnitName'player')
                     local price_string = money.to_string(unit_buyout_price * stack_size, true, nil, nil, true)
                     local stack_info = stack_size > 1 and (" x" .. stack_size) or ""
-                    aux.print(selected_item.name .. stack_info .. " listed for " .. price_string .. ".")
+                    --aux.print(selected_item.name .. stack_info .. " listed for " .. price_string .. ".")
                 end
                 update_inventory_records()
 				local same
@@ -386,6 +386,7 @@ function unit_vendor_price(item_key)
 end
 
 function update_item(item)
+
     local settings = read_settings(item.key)
 
     item.unit_vendor_price = unit_vendor_price(item.key)
@@ -438,31 +439,33 @@ function update_inventory_records()
 	    T.temp(slot)
 	    local item_info = T.temp-info.container_item(unpack(slot))
         if item_info then
-            local charge_class = item_info.charges or 0
-            if info.auctionable(item_info.tooltip, nil, true) and not item_info.lootable then
-                if not auctionable_map[item_info.item_key] then
-                    local availability = T.acquire()
-                    for i = 0, 10 do
-                        availability[i] = 0
+            if item_info.quality ~= 0 then
+                local charge_class = item_info.charges or 0
+                if info.auctionable(item_info.tooltip, nil, true) and not item_info.lootable then
+                    if not auctionable_map[item_info.item_key] then
+                        local availability = T.acquire()
+                        for i = 0, 10 do
+                            availability[i] = 0
+                        end
+                        availability[charge_class] = item_info.count
+                        auctionable_map[item_info.item_key] = T.map(
+                            'item_id', item_info.item_id,
+                            'suffix_id', item_info.suffix_id,
+                            'key', item_info.item_key,
+                            'itemstring', item_info.itemstring,
+                            'name', item_info.name,
+                            'texture', item_info.texture,
+                            'quality', item_info.quality,
+                            'aux_quantity', item_info.charges or item_info.count,
+                            'max_stack', item_info.max_stack,
+                            'max_charges', item_info.max_charges,
+                            'availability', availability
+                        )
+                    else
+                        local auctionable = auctionable_map[item_info.item_key]
+                        auctionable.availability[charge_class] = (auctionable.availability[charge_class] or 0) + item_info.count
+                        auctionable.aux_quantity = auctionable.aux_quantity + (item_info.charges or item_info.count)
                     end
-                    availability[charge_class] = item_info.count
-                    auctionable_map[item_info.item_key] = T.map(
-	                    'item_id', item_info.item_id,
-	                    'suffix_id', item_info.suffix_id,
-	                    'key', item_info.item_key,
-	                    'itemstring', item_info.itemstring,
-	                    'name', item_info.name,
-	                    'texture', item_info.texture,
-	                    'quality', item_info.quality,
-	                    'aux_quantity', item_info.charges or item_info.count,
-	                    'max_stack', item_info.max_stack,
-	                    'max_charges', item_info.max_charges,
-	                    'availability', availability
-                    )
-                else
-                    local auctionable = auctionable_map[item_info.item_key]
-                    auctionable.availability[charge_class] = (auctionable.availability[charge_class] or 0) + item_info.count
-                    auctionable.aux_quantity = auctionable.aux_quantity + (item_info.charges or item_info.count)
                 end
             end
         end

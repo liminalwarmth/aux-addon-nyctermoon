@@ -140,12 +140,15 @@ function scan_page(i)
 
 	local auction_info = info.auction(i, get_state().params.type)
 	if auction_info and (auction_info.owner or get_state().params.ignore_owner or aux.account_data.ignore_owner) then
+		if aux.account_data.ignore_marketer and auction_info.owner == "Marketer" then return scan_page(i + 1) end
 		auction_info.index = i
 		auction_info.page = get_state().page
 		auction_info.blizzard_query = get_query().blizzard_query
 		auction_info.query_type = get_state().params.type
 
-		history.process_auction(auction_info)
+		if auction_info.owner ~= "Marketer" then
+			history.process_auction(auction_info)
+		end
 
 		if (get_state().params.auto_buy_validator or pass)(auction_info) then
 			local send_signal, signal_received = aux.signal()

@@ -1,5 +1,6 @@
 module 'aux'
 
+local aux = require 'aux'
 local gui = require 'aux.gui'
 
 function handle.LOAD()
@@ -48,4 +49,5 @@ do
 	btn:SetScript('OnClick',function()
 		if AuctionFrame:IsVisible() then HideUIPanel(AuctionFrame) else ShowUIPanel(AuctionFrame) end
 	end)
+	blizzard_button = btn
 end

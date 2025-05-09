@@ -38,7 +38,7 @@ do
 			for _, f in handlers do f() end
 		elseif event == 'PLAYER_LOGIN' then
 			for _, f in handlers2 do f() end
-			print('loaded - /aux')
+			--print('loaded - /aux')
 		else
 			_M[event]()
 		end
@@ -56,6 +56,7 @@ function handle.LOAD()
     M.account_data = assign(aux.account, {
         scale = 1,
         ignore_owner = true,
+        ignore_marketer = false,
         crafting_cost = true,
         post_bid = false,
         post_duration = post.DURATION_24,
@@ -74,8 +75,8 @@ function handle.LOAD()
                 merchant_sell = false,
                 merchant_buy = false,
                 daily = false,
-                disenchant_value = false,
-                disenchant_distribution = false,
+                disenchant_value = true,
+                disenchant_distribution = true,
             }
         })
     end
@@ -92,6 +93,9 @@ end
 
 function handle.LOAD2()
     local key = format('%s|%s', GetCVar'realmName', UnitFactionGroup'player')
+	if GetCVar'realmName' == 'Microbot Vanilla' then
+		key = format('%s|%s', GetCVar'realmName', 'Horde')
+	end
     aux.faction[key] = aux.faction[key] or {}
     M.faction_data = assign(aux.faction[key], {
         history = {},
